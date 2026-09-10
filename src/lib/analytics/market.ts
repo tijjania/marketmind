@@ -17,6 +17,28 @@ export type MarketAnalysis = {
   volumeLeaders: MarketAsset[];
 };
 
+const STABLECOIN_SYMBOLS = new Set([
+  "USDT",
+  "USDC",
+  "DAI",
+  "USDe",
+  "USD1",
+  "USDG",
+  "PYUSD",
+  "RLUSD",
+  "USDD",
+  "FDUSD",
+  "TUSD",
+  "USDP",
+]);
+
+function isMeaningfulMover(asset: MarketAsset) {
+  return (
+    !STABLECOIN_SYMBOLS.has(asset.symbol) &&
+    Math.abs(asset.percentChange24h) >= 0.5
+  );
+}
+
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
@@ -81,25 +103,35 @@ export function analyzeMarket(
     .sort((a, b) => (a.rank ?? 9999) - (b.rank ?? 9999));
 
   const topGainers = [...rankedAssets]
-    .sort(
-      (a, b) =>
-        b.percentChange24h - a.percentChange24h
-    )
-    .slice(0, 5);
+  .filter(
+    (asset) =>
+      isMeaningfulMover(asset) &&
+      asset.percentChange24h > 0
+  )
+  .sort(
+    (a, b) =>
+      b.percentChange24h - a.percentChange24h
+  )
+  .slice(0, 5);
 
-  const topLosers = [...rankedAssets]
-    .sort(
-      (a, b) =>
-        a.percentChange24h - b.percentChange24h
-    )
-    .slice(0, 5);
-
+const topLosers = [...rankedAssets]
+  .filter(
+    (asset) =>
+      isMeaningfulMover(asset) &&
+      asset.percentChange24h < 0
+  )
+  .sort(
+    (a, b) =>
+      a.percentChange24h - b.percentChange24h
+  )
+  .slice(0, 5);
+  
   const volumeLeaders = [...rankedAssets]
-    .sort(
-      (a, b) =>
-        b.volumeChange24h - a.volumeChange24h
-    )
-    .slice(0, 5);
+  .sort(
+    (a, b) =>
+      b.volumeChange24h - a.volumeChange24h
+  )
+  .slice(0, 5);
 
   const signals: MarketSignal[] = [];
 
