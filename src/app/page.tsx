@@ -1,69 +1,474 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+
+type MarketAsset = {
+  id: number;
+  name: string;
+  symbol: string;
+  slug: string;
+  rank: number | null;
+  price: number | null;
+  marketCap: number | null;
+  volume24h: number;
+  volumeChange24h: number;
+  percentChange1h: number;
+  percentChange24h: number;
+  percentChange7d: number;
+  percentChange30d: number;
+  marketCapDominance: number;
+  lastUpdated: string;
+};
+
+type MarketSignal = {
+  type: "momentum" | "volume_surge" | "selloff" | "anomaly";
+  score: number;
+  title: string;
+  description: string;
+  asset: MarketAsset;
+};
+
+type MarketAnalysis = {
+  marketBias: "bullish" | "bearish" | "mixed";
+  marketScore: number;
+  signals: MarketSignal[];
+  topGainers: MarketAsset[];
+  topLosers: MarketAsset[];
+  volumeLeaders: MarketAsset[];
+};
+
+type MarketResponse = {
+  success: boolean;
+  source: string;
+  count: number;
+  data: MarketAsset[];
+  analysis: MarketAnalysis;
+  error?: string;
+};
+
+function formatPrice(value: number | null) {
+  if (value === null) return "—";
+
+  if (value >= 1000) {
+    return `$${value.toLocaleString("en-US", {
+      maximumFractionDigits: 2,
+    })}`;
+  }
+
+  if (value >= 1) {
+    return `$${value.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 4,
+    })}`;
+  }
+
+  return `$${value.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 8,
+  })}`;
+}
+
+function formatCompact(value: number | null) {
+  if (value === null) return "—";
+
+  return new Intl.NumberFormat("en-US", {
+    notation: "compact",
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
+function Change({ value }: { value: number }) {
+  const positive = value >= 0;
+
+  return (
+    <span className={positive ? "text-emerald-400" : "text-red-400"}>
+      {positive ? "+" : ""}
+      {value.toFixed(2)}%
+    </span>
+  );
+}
 
 export default function Home() {
+  const [market, setMarket] = useState<MarketResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function loadMarket() {
+      try {
+        setLoading(true);
+
+        const response = await fetch("/api/market", {
+          cache: "no-store",
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || "Failed to load market data");
+        }
+
+        setMarket(result);
+        setError("");
+      } catch (err) {
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Failed to load market data"
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadMarket();
+  }, []);
+
+  const btc = useMemo(
+    () =>
+      market?.data.find((asset) => asset.id === 1) ?? null,
+    [market]
+  );
+
+  const totalVolume = useMemo(
+    () =>
+      market?.data.reduce(
+        (total, asset) => total + asset.volume24h,
+        0
+      ) ?? 0,
+    [market]
+  );
+
+  const positiveAssets = useMemo(
+    () =>
+      market?.data.filter(
+        (asset) => asset.percentChange24h > 0
+      ).length ?? 0,
+    [market]
+  );
+
+  const breadth = market
+    ? `${positiveAssets}/${market.count}`
+    : "—";
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <main className="min-h-screen bg-[#05070b] text-white">
+      <div className="mx-auto max-w-7xl px-6 py-8 lg:px-8">
+        {/* Header */}
+        <header className="mb-10 flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-black font-black">
+                M
+              </div>
+
+              <h1 className="text-2xl font-bold tracking-tight">
+                MarketMind
+              </h1>
+            </div>
+
+            <p className="mt-2 text-sm text-zinc-500">
+              Don&apos;t just see what moved. Ask why.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/5 px-4 py-2 text-xs text-emerald-400">
+            <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+            LIVE MARKET DATA
+          </div>
+        </header>
+
+        {loading && (
+          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-10 text-center">
+            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-zinc-700 border-t-white" />
+            <p className="text-sm text-zinc-400">
+              Analyzing the market...
+            </p>
+          </div>
+        )}
+
+        {error && (
+          <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-6">
+            <p className="text-sm font-medium text-red-400">
+              Market data unavailable
+            </p>
+            <p className="mt-2 text-xs text-zinc-500">{error}</p>
+          </div>
+        )}
+
+        {market && !loading && (
+          <>
+            {/* Hero */}
+            <section className="mb-6 grid gap-6 lg:grid-cols-[1.4fr_0.6fr]">
+              <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.07] to-white/[0.02] p-8">
+                <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-purple-500/10 blur-3xl" />
+
+                <div className="relative">
+                  <p className="text-xs font-medium uppercase tracking-[0.2em] text-zinc-500">
+                    Market Intelligence
+                  </p>
+
+                  <h2 className="mt-4 max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl">
+                    Understand the market,
+                    <br />
+                    <span className="text-zinc-500">
+                      not just the price.
+                    </span>
+                  </h2>
+
+                  <p className="mt-5 max-w-xl text-sm leading-6 text-zinc-400">
+                    MarketMind turns live CoinMarketCap market data
+                    into signals, anomalies and actionable market
+                    context.
+                  </p>
+
+                  <div className="mt-7 flex flex-wrap gap-3">
+                    <button className="rounded-xl bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-zinc-200">
+                      Ask MarketMind
+                    </button>
+
+                    <span className="rounded-xl border border-white/10 px-5 py-3 text-sm text-zinc-400">
+                      Powered by {market.source}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Market Score */}
+              <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-7">
+                <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
+                  Market Score
+                </p>
+
+                <div className="mt-6 flex items-end gap-3">
+                  <span className="text-6xl font-semibold tracking-tight">
+                    {market.analysis.marketScore}
+                  </span>
+
+                  <span className="mb-2 text-sm text-zinc-500">
+                    / 100
+                  </span>
+                </div>
+
+                <div className="mt-5 h-2 overflow-hidden rounded-full bg-zinc-800">
+                  <div
+                    className="h-full rounded-full bg-white transition-all"
+                    style={{
+                      width: `${market.analysis.marketScore}%`,
+                    }}
+                  />
+                </div>
+
+                <div className="mt-5 flex items-center justify-between">
+                  <span className="text-sm text-zinc-500">
+                    Current bias
+                  </span>
+
+                  <span className="rounded-full border border-white/10 px-3 py-1 text-xs font-medium capitalize">
+                    {market.analysis.marketBias}
+                  </span>
+                </div>
+              </div>
+            </section>
+
+            {/* Stats */}
+            <section className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                <p className="text-xs text-zinc-500">BTC Price</p>
+                <p className="mt-2 text-xl font-semibold">
+                  {formatPrice(btc?.price ?? null)}
+                </p>
+                {btc && (
+                  <p className="mt-1 text-xs">
+                    <Change value={btc.percentChange24h} />
+                  </p>
+                )}
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                <p className="text-xs text-zinc-500">
+                  BTC Dominance
+                </p>
+                <p className="mt-2 text-xl font-semibold">
+                  {btc
+                    ? `${btc.marketCapDominance.toFixed(2)}%`
+                    : "—"}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                <p className="text-xs text-zinc-500">
+                  24h Volume
+                </p>
+                <p className="mt-2 text-xl font-semibold">
+                  ${formatCompact(totalVolume)}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                <p className="text-xs text-zinc-500">
+                  Market Breadth
+                </p>
+                <p className="mt-2 text-xl font-semibold">
+                  {breadth}
+                </p>
+                <p className="mt-1 text-xs text-zinc-500">
+                  assets up / tracked
+                </p>
+              </div>
+            </section>
+
+            {/* Signals */}
+            <section className="mb-6 rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+              <div className="mb-6 flex items-center justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
+                    Intelligence Feed
+                  </p>
+                  <h3 className="mt-1 text-xl font-semibold">
+                    What the market is saying
+                  </h3>
+                </div>
+
+                <span className="text-xs text-zinc-500">
+                  {market.analysis.signals.length} signals
+                </span>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                {market.analysis.signals
+                  .slice(0, 6)
+                  .map((signal, index) => (
+                    <div
+                      key={`${signal.asset.id}-${signal.type}-${index}`}
+                      className="rounded-2xl border border-white/10 bg-black/20 p-5"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] uppercase tracking-wider text-zinc-400">
+                          {signal.type.replace("_", " ")}
+                        </span>
+
+                        <span className="text-xs text-zinc-600">
+                          {signal.score}/100
+                        </span>
+                      </div>
+
+                      <h4 className="mt-4 text-sm font-semibold">
+                        {signal.title}
+                      </h4>
+
+                      <p className="mt-2 text-xs leading-5 text-zinc-500">
+                        {signal.description}
+                      </p>
+                    </div>
+                  ))}
+              </div>
+            </section>
+
+            {/* Movers */}
+            <section className="grid gap-6 lg:grid-cols-2">
+              <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+                <div className="mb-5">
+                  <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
+                    Market Movers
+                  </p>
+                  <h3 className="mt-1 text-xl font-semibold">
+                    Top gainers
+                  </h3>
+                </div>
+
+                <div className="space-y-2">
+                  {market.analysis.topGainers.map((asset) => (
+                    <div
+                      key={asset.id}
+                      className="flex items-center justify-between rounded-xl px-3 py-3 transition hover:bg-white/[0.04]"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="w-5 text-xs text-zinc-600">
+                          {asset.rank}
+                        </span>
+
+                        <div>
+                          <p className="text-sm font-medium">
+                            {asset.name}
+                          </p>
+                          <p className="text-[11px] text-zinc-600">
+                            {asset.symbol}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="text-right">
+                        <p className="text-sm">
+                          {formatPrice(asset.price)}
+                        </p>
+                        <p className="text-xs">
+                          <Change value={asset.percentChange24h} />
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+                <div className="mb-5">
+                  <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
+                    Volume Intelligence
+                  </p>
+                  <h3 className="mt-1 text-xl font-semibold">
+                    Biggest volume shifts
+                  </h3>
+                </div>
+
+                <div className="space-y-2">
+                  {market.analysis.volumeLeaders.map((asset) => (
+                    <div
+                      key={asset.id}
+                      className="flex items-center justify-between rounded-xl px-3 py-3 transition hover:bg-white/[0.04]"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="w-5 text-xs text-zinc-600">
+                          {asset.rank}
+                        </span>
+
+                        <div>
+                          <p className="text-sm font-medium">
+                            {asset.name}
+                          </p>
+                          <p className="text-[11px] text-zinc-600">
+                            {asset.symbol}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="text-right">
+                        <p className="text-sm">
+                          ${formatCompact(asset.volume24h)}
+                        </p>
+                        <p className="text-xs">
+                          <Change value={asset.volumeChange24h} />
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* Footer */}
+            <footer className="mt-10 flex flex-col gap-2 border-t border-white/5 pt-6 text-xs text-zinc-600 sm:flex-row sm:items-center sm:justify-between">
+              <span>
+                MarketMind · AI-powered crypto market intelligence
+              </span>
+
+              <span>
+                Data source: {market.source}
+              </span>
+            </footer>
+          </>
+        )}
+      </div>
+    </main>
   );
 }
