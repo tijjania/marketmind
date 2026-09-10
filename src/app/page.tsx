@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 
 type MarketAsset = {
   id: number;
@@ -552,41 +553,42 @@ export default function Home() {
                   </h3>
                 </div>
 
-                <div className="space-y-2">
-                  {market.analysis.topGainers.map((asset) => (
-                    <div
-                      key={asset.id}
+               <div className="space-y-2">
+                 {market.analysis.topGainers.map((asset) => (
+                   <Link
+                     key={asset.id}
+                     href={`/token/${asset.id}`}
                       className="flex items-center justify-between rounded-xl px-3 py-3 transition hover:bg-white/[0.04]"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="w-5 text-xs text-zinc-600">
-                          {asset.rank}
-                        </span>
+                   >
+                     <div className="flex items-center gap-3">
+                       <span className="w-5 text-xs text-zinc-600">
+                         {asset.rank}
+                       </span>
 
-                        <div>
-                          <p className="text-sm font-medium">
-                            {asset.name}
-                          </p>
-
-                          <p className="text-[11px] text-zinc-600">
-                            {asset.symbol}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="text-right">
-                        <p className="text-sm">
-                          {formatPrice(asset.price)}
+                      <div>
+                        <p className="text-sm font-medium">
+                          {asset.name}
                         </p>
 
-                        <p className="text-xs">
-                          <Change value={asset.percentChange24h} />
+                         <p className="text-[11px] text-zinc-600">
+                           {asset.symbol}
                         </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+                       </div>
+                  </div>
+
+                   <div className="text-right">
+                     <p className="text-sm">
+                        {formatPrice(asset.price)}
+                     </p>
+
+                     <p className="text-xs">
+                       <Change value={asset.percentChange24h} />
+                     </p>
+                   </div>
+                 </Link>
+               ))}
+             </div>
+            </div>
 
               <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
                 <div className="mb-5">
