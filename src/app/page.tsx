@@ -46,6 +46,20 @@ type MarketResponse = {
   error?: string;
 };
 
+type AskResponse = {
+  success: boolean;
+  answer?: string;
+  error?: string;
+  source?: string;
+};
+
+const suggestedQuestions = [
+  "Why is the market moving this way?",
+  "What assets show unusual activity?",
+  "Which assets have the strongest momentum?",
+  "Is volume confirming the current trend?",
+];
+
 function formatPrice(value: number | null) {
   if (value === null) return "—";
 
@@ -93,6 +107,11 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("");
+  const [askLoading, setAskLoading] = useState(false);
+  const [askError, setAskError] = useState("");
+
   useEffect(() => {
     async function loadMarket() {
       try {
@@ -124,9 +143,51 @@ export default function Home() {
     loadMarket();
   }, []);
 
+  async function askMarketMind(customQuestion?: string) {
+    const currentQuestion = (customQuestion ?? question).trim();
+
+    if (!currentQuestion || askLoading) return;
+
+    try {
+      setAskLoading(true);
+      setAskError("");
+
+      if (customQuestion) {
+        setQuestion(customQuestion);
+      }
+
+      const response = await fetch("/api/ask", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          question: currentQuestion,
+        }),
+      });
+
+      const result: AskResponse = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(
+          result.error || "Failed to generate market analysis"
+        );
+      }
+
+      setAnswer(result.answer ?? "");
+    } catch (err) {
+      setAskError(
+        err instanceof Error
+          ? err.message
+          : "Failed to generate market analysis"
+      );
+    } finally {
+      setAskLoading(false);
+    }
+  }
+
   const btc = useMemo(
-    () =>
-      market?.data.find((asset) => asset.id === 1) ?? null,
+    () => market?.data.find((asset) => asset.id === 1) ?? null,
     [market]
   );
 
@@ -158,7 +219,7 @@ export default function Home() {
         <header className="mb-10 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-black font-black">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white font-black text-black">
                 M
               </div>
 
@@ -181,6 +242,7 @@ export default function Home() {
         {loading && (
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-10 text-center">
             <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-zinc-700 border-t-white" />
+
             <p className="text-sm text-zinc-400">
               Analyzing the market...
             </p>
@@ -192,14 +254,17 @@ export default function Home() {
             <p className="text-sm font-medium text-red-400">
               Market data unavailable
             </p>
-            <p className="mt-2 text-xs text-zinc-500">{error}</p>
+
+            <p className="mt-2 text-xs text-zinc-500">
+              {error}
+            </p>
           </div>
         )}
 
         {market && !loading && (
           <>
-            {/* Hero */}
-            <section className="mb-6 grid gap-6 lg:grid-cols-[1.4fr_0.6fr]">
+            {/* Hero + Ask MarketMind */}
+            <section className="mb-6 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
               <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.07] to-white/[0.02] p-8">
                 <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-purple-500/10 blur-3xl" />
 
@@ -218,14 +283,17 @@ export default function Home() {
 
                   <p className="mt-5 max-w-xl text-sm leading-6 text-zinc-400">
                     MarketMind turns live CoinMarketCap market data
-                    into signals, anomalies and actionable market
+                    into signals, anomalies and AI-powered market
                     context.
                   </p>
 
                   <div className="mt-7 flex flex-wrap gap-3">
-                    <button className="rounded-xl bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-zinc-200">
+                    <a
+                      href="#ask"
+                      className="rounded-xl bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-zinc-200"
+                    >
                       Ask MarketMind
-                    </button>
+                    </a>
 
                     <span className="rounded-xl border border-white/10 px-5 py-3 text-sm text-zinc-400">
                       Powered by {market.source}
@@ -271,13 +339,114 @@ export default function Home() {
               </div>
             </section>
 
+            {/* Ask MarketMind */}
+            <section
+              id="ask"
+              className="mb-6 rounded-3xl border border-white/10 bg-white/[0.03] p-6"
+            >
+              <div className="mb-6">
+                <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
+                  AI Analyst
+                </p>
+
+                <h3 className="mt-1 text-2xl font-semibold">
+                  Ask MarketMind
+                </h3>
+
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-500">
+                  Ask questions about the current market. MarketMind
+                  analyzes live CMC data and explains the signals behind
+                  the move.
+                </p>
+              </div>
+
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  void askMarketMind();
+                }}
+                className="flex flex-col gap-3 sm:flex-row"
+              >
+                <input
+                  value={question}
+                  onChange={(event) =>
+                    setQuestion(event.target.value)
+                  }
+                  placeholder="Why is the market moving this way?"
+                  className="min-h-12 flex-1 rounded-xl border border-white/10 bg-black/30 px-4 text-sm text-white outline-none placeholder:text-zinc-600 focus:border-white/20"
+                />
+
+                <button
+                  type="submit"
+                  disabled={!question.trim() || askLoading}
+                  className="min-h-12 rounded-xl bg-white px-6 text-sm font-semibold text-black transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {askLoading ? "Analyzing..." : "Analyze"}
+                </button>
+              </form>
+
+              <div className="mt-4 flex flex-wrap gap-2">
+                {suggestedQuestions.map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => void askMarketMind(item)}
+                    disabled={askLoading}
+                    className="rounded-full border border-white/10 px-3 py-2 text-xs text-zinc-400 transition hover:border-white/20 hover:bg-white/[0.04] hover:text-white disabled:opacity-40"
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+
+              {askError && (
+                <div className="mt-5 rounded-2xl border border-red-500/20 bg-red-500/5 p-4">
+                  <p className="text-sm text-red-400">
+                    {askError}
+                  </p>
+                </div>
+              )}
+
+              {askLoading && (
+                <div className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-5">
+                  <div className="flex items-center gap-3">
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-700 border-t-white" />
+
+                    <p className="text-sm text-zinc-400">
+                      MarketMind is analyzing live market signals...
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {answer && !askLoading && (
+                <div className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-6">
+                  <div className="mb-4 flex items-center justify-between">
+                    <span className="text-xs uppercase tracking-[0.18em] text-zinc-500">
+                      MarketMind Analysis
+                    </span>
+
+                    <span className="text-xs text-zinc-600">
+                      Live market context
+                    </span>
+                  </div>
+
+                  <div className="whitespace-pre-wrap text-sm leading-7 text-zinc-300">
+                    {answer}
+                  </div>
+                </div>
+              )}
+            </section>
+
             {/* Stats */}
             <section className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
                 <p className="text-xs text-zinc-500">BTC Price</p>
+
                 <p className="mt-2 text-xl font-semibold">
                   {formatPrice(btc?.price ?? null)}
                 </p>
+
                 {btc && (
                   <p className="mt-1 text-xs">
                     <Change value={btc.percentChange24h} />
@@ -289,6 +458,7 @@ export default function Home() {
                 <p className="text-xs text-zinc-500">
                   BTC Dominance
                 </p>
+
                 <p className="mt-2 text-xl font-semibold">
                   {btc
                     ? `${btc.marketCapDominance.toFixed(2)}%`
@@ -300,6 +470,7 @@ export default function Home() {
                 <p className="text-xs text-zinc-500">
                   24h Volume
                 </p>
+
                 <p className="mt-2 text-xl font-semibold">
                   ${formatCompact(totalVolume)}
                 </p>
@@ -309,9 +480,11 @@ export default function Home() {
                 <p className="text-xs text-zinc-500">
                   Market Breadth
                 </p>
+
                 <p className="mt-2 text-xl font-semibold">
                   {breadth}
                 </p>
+
                 <p className="mt-1 text-xs text-zinc-500">
                   assets up / tracked
                 </p>
@@ -325,6 +498,7 @@ export default function Home() {
                   <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
                     Intelligence Feed
                   </p>
+
                   <h3 className="mt-1 text-xl font-semibold">
                     What the market is saying
                   </h3>
@@ -372,6 +546,7 @@ export default function Home() {
                   <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
                     Market Movers
                   </p>
+
                   <h3 className="mt-1 text-xl font-semibold">
                     Top gainers
                   </h3>
@@ -392,6 +567,7 @@ export default function Home() {
                           <p className="text-sm font-medium">
                             {asset.name}
                           </p>
+
                           <p className="text-[11px] text-zinc-600">
                             {asset.symbol}
                           </p>
@@ -402,6 +578,7 @@ export default function Home() {
                         <p className="text-sm">
                           {formatPrice(asset.price)}
                         </p>
+
                         <p className="text-xs">
                           <Change value={asset.percentChange24h} />
                         </p>
@@ -416,6 +593,7 @@ export default function Home() {
                   <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
                     Volume Intelligence
                   </p>
+
                   <h3 className="mt-1 text-xl font-semibold">
                     Biggest volume shifts
                   </h3>
@@ -436,6 +614,7 @@ export default function Home() {
                           <p className="text-sm font-medium">
                             {asset.name}
                           </p>
+
                           <p className="text-[11px] text-zinc-600">
                             {asset.symbol}
                           </p>
@@ -446,6 +625,7 @@ export default function Home() {
                         <p className="text-sm">
                           ${formatCompact(asset.volume24h)}
                         </p>
+
                         <p className="text-xs">
                           <Change value={asset.volumeChange24h} />
                         </p>
