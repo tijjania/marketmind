@@ -506,22 +506,36 @@ export default function Home() {
               )}
 
               {answer && !askLoading && (
-                <div className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-6">
-                  <div className="mb-4 flex items-center justify-between">
-                    <span className="text-xs uppercase tracking-[0.18em] text-zinc-500">
-                      MarketMind Analysis
-                    </span>
+  <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-black/20">
+    <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+      <div className="flex items-center gap-3">
+        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white text-xs font-black text-black">
+          M
+        </div>
 
-                    <span className="text-xs text-zinc-600">
-                      Live market context
-                    </span>
-                  </div>
+        <div>
+          <p className="text-xs font-semibold text-white">
+            MarketMind Analysis
+          </p>
 
-                  <div className="whitespace-pre-wrap text-sm leading-7 text-zinc-300">
-                    {answer}
-                  </div>
-                </div>
-              )}
+          <p className="mt-0.5 text-[10px] uppercase tracking-wider text-zinc-600">
+            AI market intelligence
+          </p>
+        </div>
+      </div>
+
+      <span className="rounded-full border border-emerald-500/20 bg-emerald-500/5 px-2.5 py-1 text-[10px] uppercase tracking-wider text-emerald-400">
+        Live context
+      </span>
+    </div>
+
+    <div className="px-5 py-5">
+      <div className="whitespace-pre-wrap text-sm leading-7 text-zinc-300">
+        {answer}
+      </div>
+    </div>
+  </div>
+)}
             </section>
 
             {/* Stats */}
