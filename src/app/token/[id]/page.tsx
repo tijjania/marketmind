@@ -99,6 +99,10 @@ export default function TokenPage() {
   const [token, setToken] = useState<TokenResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("");
+  const [askLoading, setAskLoading] = useState(false);
+  const [askError, setAskError] = useState("");
 
   useEffect(() => {
     if (!id) return;
@@ -134,6 +138,50 @@ export default function TokenPage() {
 
     loadToken();
   }, [id]);
+
+  async function askMarketMind(customQuestion?: string) {
+    const currentQuestion = (customQuestion ?? question).trim();
+
+    if (!currentQuestion || askLoading || !id) return;
+
+    try {
+      setAskLoading(true);
+      setAskError("");
+
+      if (customQuestion) {
+        setQuestion(customQuestion);
+      }
+
+      const response = await fetch("/api/token/ask", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id,
+          question: currentQuestion,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(
+          result.error || "Failed to generate token analysis"
+        );
+      }
+
+      setAnswer(result.answer ?? "");
+    } catch (err) {
+      setAskError(
+        err instanceof Error
+          ? err.message
+          : "Failed to generate token analysis"
+      );
+    } finally {
+      setAskLoading(false);
+    }
+  }
 
   if (loading) {
     return (
@@ -303,6 +351,101 @@ export default function TokenPage() {
             }
             subtitle="Market behavior"
           />
+        </section>
+
+        {/* AI Analyst */}
+        <section id="ask" className="mb-6 rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+          <div className="mb-6">
+            <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
+              AI Analyst
+            </p>
+
+            <h2 className="mt-1 text-2xl font-semibold">
+              Ask MarketMind about {asset.symbol}
+            </h2>
+
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-500">
+              Ask about this token&apos;s momentum, trend, volume, risk, or
+              detected signals. MarketMind uses the live token data above.
+            </p>
+          </div>
+
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              void askMarketMind();
+            }}
+            className="flex flex-col gap-3 sm:flex-row"
+          >
+            <input
+              value={question}
+              onChange={(event) => setQuestion(event.target.value)}
+              placeholder={`Why is ${asset.symbol} showing this momentum?`}
+              className="min-h-12 flex-1 rounded-xl border border-white/10 bg-black/30 px-4 text-sm text-white outline-none placeholder:text-zinc-600 focus:border-white/20"
+            />
+
+            <button
+              type="submit"
+              disabled={!question.trim() || askLoading}
+              className="min-h-12 rounded-xl bg-white px-6 text-sm font-semibold text-black transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {askLoading ? "Analyzing..." : "Analyze"}
+            </button>
+          </form>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            {[
+              `Why is ${asset.symbol} moving this way?`,
+              `What is driving ${asset.symbol}'s momentum?`,
+              `Is volume confirming the ${asset.symbol} trend?`,
+              `What are the main risks for ${asset.symbol}?`,
+            ].map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => void askMarketMind(item)}
+                disabled={askLoading}
+                className="rounded-full border border-white/10 px-3 py-2 text-xs text-zinc-400 transition hover:border-white/20 hover:bg-white/[0.04] hover:text-white disabled:opacity-40"
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+
+          {askError && (
+            <div className="mt-5 rounded-2xl border border-red-500/20 bg-red-500/5 p-4">
+              <p className="text-sm text-red-400">{askError}</p>
+            </div>
+          )}
+
+          {askLoading && (
+            <div className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-5">
+              <div className="flex items-center gap-3">
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-700 border-t-white" />
+                <p className="text-sm text-zinc-400">
+                  MarketMind is analyzing live {asset.symbol} signals...
+                </p>
+              </div>
+            </div>
+          )}
+
+          {answer && !askLoading && (
+            <div className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <span className="text-xs uppercase tracking-[0.18em] text-zinc-500">
+                  MarketMind Analysis
+                </span>
+
+                <span className="text-xs text-zinc-600">
+                  Live token context
+                </span>
+              </div>
+
+              <div className="whitespace-pre-wrap text-sm leading-7 text-zinc-300">
+                {answer}
+              </div>
+            </div>
+          )}
         </section>
 
         {/* Signals */}
