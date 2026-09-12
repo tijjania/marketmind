@@ -21,14 +21,63 @@ type MarketAsset = {
   marketCapDominance: number;
   lastUpdated: string;
 };
-
-type MarketSignal = {
-  type: "momentum" | "volume_surge" | "selloff" | "anomaly";
+  type MarketSignal = {
+  type:
+    | "momentum"
+    | "volume_surge"
+    | "selloff"
+    | "anomaly"
+    | "confirmation"
+    | "divergence";
   score: number;
   title: string;
   description: string;
   asset: MarketAsset;
 };
+
+function getSignalStyle(type: MarketSignal["type"]) {
+  switch (type) {
+    case "confirmation":
+      return {
+        badge:
+          "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
+        accent: "border-emerald-500/20",
+      };
+
+    case "divergence":
+      return {
+        badge:
+          "bg-amber-500/10 text-amber-400 border border-amber-500/20",
+        accent: "border-amber-500/20",
+      };
+
+    case "selloff":
+      return {
+        badge: "bg-red-500/10 text-red-400 border border-red-500/20",
+        accent: "border-red-500/20",
+      };
+
+    case "volume_surge":
+      return {
+        badge: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
+        accent: "border-blue-500/20",
+      };
+
+    case "anomaly":
+      return {
+        badge:
+          "bg-purple-500/10 text-purple-400 border border-purple-500/20",
+        accent: "border-purple-500/20",
+      };
+
+    case "momentum":
+    default:
+      return {
+        badge: "bg-white/5 text-zinc-400 border border-white/10",
+        accent: "border-white/10",
+      };
+  }
+}
 
 type MarketAnalysis = {
   marketBias: "bullish" | "bearish" | "mixed";
@@ -535,30 +584,36 @@ export default function Home() {
               <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
                 {market.analysis.signals
                   .slice(0, 6)
-                  .map((signal, index) => (
-                    <div
-                      key={`${signal.asset.id}-${signal.type}-${index}`}
-                      className="rounded-2xl border border-white/10 bg-black/20 p-5"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] uppercase tracking-wider text-zinc-400">
-                          {signal.type.replace("_", " ")}
-                        </span>
+                 .map((signal, index) => {
+  const signalStyle = getSignalStyle(signal.type);
 
-                        <span className="text-xs text-zinc-600">
-                          {signal.score}/100
-                        </span>
-                      </div>
+  return (
+    <div
+      key={`${signal.asset.id}-${signal.type}-${index}`}
+      className={`rounded-2xl border bg-black/20 p-5 transition ${signalStyle.accent} hover:bg-white/[0.03]`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <span
+          className={`rounded-full px-2.5 py-1 text-[10px] uppercase tracking-wider ${signalStyle.badge}`}
+        >
+          {signal.type.replace("_", " ")}
+        </span>
 
-                      <h4 className="mt-4 text-sm font-semibold">
-                        {signal.title}
-                      </h4>
+        <span className="text-xs text-zinc-600">
+          {signal.score}/100
+        </span>
+      </div>
 
-                      <p className="mt-2 text-xs leading-5 text-zinc-500">
-                        {signal.description}
-                      </p>
-                    </div>
-                  ))}
+      <h4 className="mt-4 text-sm font-semibold">
+        {signal.title}
+      </h4>
+
+            <p className="mt-2 text-xs leading-5 text-zinc-500">
+        {signal.description}
+      </p>
+    </div>
+  );
+})}
               </div>
             </section>
 
