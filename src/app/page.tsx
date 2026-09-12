@@ -28,7 +28,8 @@ type MarketAsset = {
     | "selloff"
     | "anomaly"
     | "confirmation"
-    | "divergence";
+    | "divergence"
+    | "absorption";
   score: number;
   title: string;
   description: string;
@@ -69,7 +70,12 @@ function getSignalStyle(type: MarketSignal["type"]) {
           "bg-purple-500/10 text-purple-400 border border-purple-500/20",
         accent: "border-purple-500/20",
       };
-
+    case "absorption":
+       return {
+          badge:
+            "bg-orange-500/10 text-orange-400 border border-orange-500/20",
+          accent: "border-orange-500/20",
+        };
     case "momentum":
     default:
       return {

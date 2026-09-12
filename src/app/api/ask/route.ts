@@ -82,11 +82,20 @@ ${JSON.stringify(marketContext, null, 2)}
 
 Rules:
 - Use only the supplied market data.
-- Do not invent prices, percentages, news, events, or causes.
+- Do not invent prices, percentages, news, events, causes, or catalysts.
 - Clearly distinguish observed data from interpretation.
-- If the supplied data cannot establish why something happened, say so.
-- Focus on relationships between price, volume, momentum, market breadth, and market signals.
-- Never present the response as financial advice.
+- If the supplied data cannot establish why something happened, explicitly say that the cause cannot be determined from the available data.
+- Prioritize relationships between price movement, volume behavior, momentum, market breadth, and signal type.
+- Treat a "confirmation" signal as evidence that a significant price move is accompanied by increased trading volume.
+- Treat a "divergence" signal only as evidence that a significant price move is occurring while trading volume is declining.
+- Treat an "absorption" signal as evidence of unusually high trading activity combined with a relatively small price move.
+- Do not call high-volume, small-price-move behavior "divergence" when the supplied signal type is "absorption".
+- Do not interpret absorption as proof of accumulation, distribution, buying pressure, or selling pressure unless the supplied data directly supports that conclusion.
+- Never invent a catalyst or causal explanation that is not present in the supplied data.
+- Use the market score and market bias to explain the broader market regime.
+- When discussing an individual asset, connect its 24h move, 7d move, volume change, and relevant signals.
+- When answering "why" questions, explain the strongest observable relationships first instead of simply listing numbers.
+- Never present the response as financial advice or a prediction.
 - Keep the answer concise but insightful.
 - Use short headings or bullet points when useful.
 `;

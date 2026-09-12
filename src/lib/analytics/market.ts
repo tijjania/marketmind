@@ -7,7 +7,8 @@ export type MarketSignal = {
     | "selloff"
     | "anomaly"
     | "confirmation"
-    | "divergence";
+    | "divergence"
+    | "absorption";
   score: number;
   title: string;
   description: string;
@@ -193,7 +194,30 @@ export function analyzeMarket(
         asset,
       });
     }
-
+    if (
+      Math.abs(priceChange) <= 2 &&
+      volumeChange >= 50
+    ) {
+      signals.push({
+        type: "absorption",
+        score: Math.round(
+          clamp(
+            volumeChange * 0.8 +
+              Math.max(0, 2 - Math.abs(priceChange)) * 5,
+            0,
+            100
+          )
+        ),
+        title: `${asset.name} shows high-volume price absorption`,
+        description:
+          `${asset.symbol} is showing a relatively small 24h price move of ${priceChange.toFixed(
+            2
+          )}% while trading volume increased ${volumeChange.toFixed(
+            2
+          )}%. This indicates unusually high trading activity without a similarly large price move.`,
+        asset,
+      });
+    }
     if (momentum >= 40) {
       signals.push({
         type: "momentum",
