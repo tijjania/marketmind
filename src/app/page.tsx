@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import MarketChart from "@/components/MarketChart";
 
 type MarketAsset = {
   id: number;
@@ -212,6 +213,19 @@ export default function Home() {
   const breadth = market
     ? `${positiveAssets}/${market.count}`
     : "—";
+
+  const marketChartData = useMemo(
+    () =>
+      btc
+        ? [
+            { label: "1H", value: btc.percentChange1h },
+            { label: "24H", value: btc.percentChange24h },
+            { label: "7D", value: btc.percentChange7d },
+            { label: "30D", value: btc.percentChange30d },
+          ]
+        : [],
+    [btc]
+  );
 
   return (
     <main className="min-h-screen bg-[#05070b] text-white">
@@ -490,6 +504,14 @@ export default function Home() {
                   assets up / tracked
                 </p>
               </div>
+            </section>
+
+            {/* Market Chart */}
+            <section className="mb-6">
+              <MarketChart
+                data={marketChartData}
+                label="Bitcoin performance across key timeframes"
+              />
             </section>
 
             {/* Signals */}
