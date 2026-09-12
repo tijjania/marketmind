@@ -390,7 +390,13 @@ export default function Home() {
 
                 <div className="mt-5 h-2 overflow-hidden rounded-full bg-zinc-800">
                   <div
-                    className="h-full rounded-full bg-white transition-all"
+                    className={`h-full rounded-full transition-all ${
+  market.analysis.marketBias === "bullish"
+    ? "bg-emerald-400"
+    : market.analysis.marketBias === "bearish"
+      ? "bg-red-400"
+      : "bg-zinc-400"
+}`}
                     style={{
                       width: `${market.analysis.marketScore}%`,
                     }}
