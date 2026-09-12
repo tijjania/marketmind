@@ -641,9 +641,24 @@ export default function Home() {
     </span>
   </div>
 
+  <div className="text-right">
   <span className="text-xs text-zinc-600">
     {signal.score}/100
   </span>
+
+  <div className="mt-1 h-1 w-12 overflow-hidden rounded-full bg-zinc-800">
+    <div
+      className={`h-full rounded-full ${
+        signal.score >= 70
+          ? "bg-emerald-400"
+          : signal.score >= 40
+            ? "bg-amber-400"
+            : "bg-zinc-500"
+      }`}
+      style={{ width: `${signal.score}%` }}
+    />
+  </div>
+</div>
 </div>
 
       <h4 className="mt-4 text-sm font-semibold">
