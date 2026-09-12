@@ -205,11 +205,12 @@ export default function TokenPage() {
       <main className="min-h-screen bg-[#05070b] px-6 py-12 text-white">
         <div className="mx-auto max-w-6xl">
           <Link
-  href="/"
-  className="text-sm text-zinc-500 transition hover:text-white"
->
-  ← Back to MarketMind
-</Link>
+            href="/"
+            className="text-sm text-zinc-500 transition hover:text-white"
+          >
+            ← Back to MarketMind
+          </Link>
+
           <div className="mt-8 rounded-3xl border border-red-500/20 bg-red-500/5 p-8">
             <h1 className="text-lg font-semibold text-red-400">
               Token unavailable
@@ -240,11 +241,11 @@ export default function TokenPage() {
         {/* Header */}
         <header className="mb-8 flex items-center justify-between">
           <a
-  href="#ask"
-  className="rounded-xl bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-zinc-200"
->
-  Ask MarketMind
-</a>
+            href="#ask"
+            className="rounded-xl bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-zinc-200"
+          >
+            Ask MarketMind
+          </a>
 
           <span className="flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/5 px-4 py-2 text-xs text-emerald-400">
             <span className="h-2 w-2 rounded-full bg-emerald-400" />
@@ -351,12 +352,26 @@ export default function TokenPage() {
             label="Momentum Score"
             value={`${analysis.momentumScore}`}
             subtitle="/ 100"
+            accent={
+              analysis.momentumScore >= 20
+                ? "text-emerald-400"
+                : analysis.momentumScore <= -20
+                  ? "text-red-400"
+                  : "text-zinc-300"
+            }
           />
 
           <IntelligenceCard
             label="Trend"
             value={trendLabel(analysis.trend)}
             subtitle="Current structure"
+            accent={
+              analysis.trend === "bullish"
+                ? "text-emerald-400"
+                : analysis.trend === "bearish"
+                  ? "text-red-400"
+                  : "text-zinc-300"
+            }
           />
 
           <IntelligenceCard
@@ -366,11 +381,21 @@ export default function TokenPage() {
               analysis.riskLevel.slice(1)
             }
             subtitle="Market behavior"
+            accent={
+              analysis.riskLevel === "high"
+                ? "text-red-400"
+                : analysis.riskLevel === "medium"
+                  ? "text-amber-400"
+                  : "text-emerald-400"
+            }
           />
         </section>
 
         {/* AI Analyst */}
-        <section id="ask" className="mb-6 rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+        <section
+          id="ask"
+          className="mb-6 rounded-3xl border border-white/10 bg-white/[0.03] p-6"
+        >
           <div className="mb-6">
             <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
               AI Analyst
@@ -438,6 +463,7 @@ export default function TokenPage() {
             <div className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-5">
               <div className="flex items-center gap-3">
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-700 border-t-white" />
+
                 <p className="text-sm text-zinc-400">
                   MarketMind is analyzing live {asset.symbol} signals...
                 </p>
@@ -562,10 +588,12 @@ function IntelligenceCard({
   label,
   value,
   subtitle,
+  accent = "text-white",
 }: {
   label: string;
   value: string;
   subtitle: string;
+  accent?: string;
 }) {
   return (
     <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
@@ -573,7 +601,9 @@ function IntelligenceCard({
         {label}
       </p>
 
-      <p className="mt-5 text-3xl font-semibold">{value}</p>
+      <p className={`mt-5 text-3xl font-semibold ${accent}`}>
+        {value}
+      </p>
 
       <p className="mt-2 text-xs text-zinc-600">{subtitle}</p>
     </div>
