@@ -404,14 +404,24 @@ export default function Home() {
                 </div>
 
                 <div className="mt-5 flex items-center justify-between">
-                  <span className="text-sm text-zinc-500">
-                    Current bias
-                  </span>
+  <div>
+    <span className="text-sm text-zinc-500">
+      Current bias
+    </span>
 
-                  <span className="rounded-full border border-white/10 px-3 py-1 text-xs font-medium capitalize">
-                    {market.analysis.marketBias}
-                  </span>
-                </div>
+    <p className="mt-1 text-xs text-zinc-600">
+      {market.analysis.marketBias === "bullish"
+        ? "Positive market pressure"
+        : market.analysis.marketBias === "bearish"
+          ? "Negative market pressure"
+          : "Conflicting market signals"}
+    </p>
+  </div>
+
+  <span className="rounded-full border border-white/10 px-3 py-1 text-xs font-medium capitalize">
+    {market.analysis.marketBias}
+  </span>
+</div>
               </div>
             </section>
 
