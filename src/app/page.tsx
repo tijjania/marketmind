@@ -339,37 +339,37 @@ export default function Home() {
                 <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-purple-500/10 blur-3xl" />
 
                 <div className="relative">
-                  <p className="text-xs font-medium uppercase tracking-[0.2em] text-zinc-500">
-                    Market Intelligence
-                  </p>
+  <p className="text-xs font-medium uppercase tracking-[0.2em] text-zinc-500">
+    AI-Powered Crypto Intelligence
+  </p>
 
-                  <h2 className="mt-4 max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl">
-                    Understand the market,
-                    <br />
-                    <span className="text-zinc-500">
-                      not just the price.
-                    </span>
-                  </h2>
+  <h2 className="mt-4 max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl">
+    Don&apos;t just see what moved.
+    <br />
+    <span className="text-zinc-500">
+      Ask MarketMind why.
+    </span>
+  </h2>
 
-                  <p className="mt-5 max-w-xl text-sm leading-6 text-zinc-400">
-                    MarketMind turns live CoinMarketCap market data
-                    into signals, anomalies and AI-powered market
-                    context.
-                  </p>
+  <p className="mt-5 max-w-xl text-sm leading-6 text-zinc-400">
+    MarketMind analyzes live CoinMarketCap market data to uncover
+    momentum, volume shifts, anomalies and market-wide signals —
+    then explains what the data means.
+  </p>
 
-                  <div className="mt-7 flex flex-wrap gap-3">
-                    <a
-                      href="#ask"
-                      className="rounded-xl bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-zinc-200"
-                    >
-                      Ask MarketMind
-                    </a>
+  <div className="mt-7 flex flex-wrap gap-3">
+    <a
+      href="#ask"
+      className="rounded-xl bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-zinc-200"
+    >
+      Ask MarketMind
+    </a>
 
-                    <span className="rounded-xl border border-white/10 px-5 py-3 text-sm text-zinc-400">
-                      Powered by {market.source}
-                    </span>
-                  </div>
-                </div>
+    <span className="rounded-xl border border-white/10 px-5 py-3 text-sm text-zinc-400">
+      Powered by {market.source}
+    </span>
+  </div>
+</div>
               </div>
 
               {/* Market Score */}
