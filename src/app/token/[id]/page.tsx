@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import TokenChart from "@/components/TokenChart";
 
 type MarketAsset = {
   id: number;
@@ -226,6 +227,13 @@ export default function TokenPage() {
   const asset = token.data;
   const analysis = token.analysis;
 
+  const performanceChartData = [
+    { label: "1H", value: asset.percentChange1h },
+    { label: "24H", value: asset.percentChange24h },
+    { label: "7D", value: asset.percentChange7d },
+    { label: "30D", value: asset.percentChange30d },
+  ];
+
   return (
     <main className="min-h-screen bg-[#05070b] text-white">
       <div className="mx-auto max-w-6xl px-6 py-8 lg:px-8">
@@ -326,6 +334,14 @@ export default function TokenPage() {
           <MetricCard
             label="30 Days"
             value={<Change value={asset.percentChange30d} />}
+          />
+        </section>
+
+        {/* Token Performance Chart */}
+        <section className="mb-6">
+          <TokenChart
+            data={performanceChartData}
+            symbol={asset.symbol}
           />
         </section>
 
