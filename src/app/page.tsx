@@ -599,16 +599,22 @@ export default function Home() {
       className={`rounded-2xl border bg-black/20 p-5 transition ${signalStyle.accent} hover:bg-white/[0.03]`}
     >
       <div className="flex items-start justify-between gap-3">
-        <span
-          className={`rounded-full px-2.5 py-1 text-[10px] uppercase tracking-wider ${signalStyle.badge}`}
-        >
-          {signal.type.replace("_", " ")}
-        </span>
+  <div className="flex flex-wrap items-center gap-2">
+    <span
+      className={`rounded-full px-2.5 py-1 text-[10px] uppercase tracking-wider ${signalStyle.badge}`}
+    >
+      {signal.type.replace("_", " ")}
+    </span>
 
-        <span className="text-xs text-zinc-600">
-          {signal.score}/100
-        </span>
-      </div>
+    <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-600">
+      {signal.asset.symbol}
+    </span>
+  </div>
+
+  <span className="text-xs text-zinc-600">
+    {signal.score}/100
+  </span>
+</div>
 
       <h4 className="mt-4 text-sm font-semibold">
         {signal.title}
