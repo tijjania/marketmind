@@ -1,7 +1,13 @@
 import type { MarketAsset } from "@/lib/cmc/types";
 
 export type MarketSignal = {
-  type: "momentum" | "volume_surge" | "selloff" | "anomaly";
+  type:
+    | "momentum"
+    | "volume_surge"
+    | "selloff"
+    | "anomaly"
+    | "confirmation"
+    | "divergence";
   score: number;
   title: string;
   description: string;
@@ -103,40 +109,90 @@ export function analyzeMarket(
     .sort((a, b) => (a.rank ?? 9999) - (b.rank ?? 9999));
 
   const topGainers = [...rankedAssets]
-  .filter(
-    (asset) =>
-      isMeaningfulMover(asset) &&
-      asset.percentChange24h > 0
-  )
-  .sort(
-    (a, b) =>
-      b.percentChange24h - a.percentChange24h
-  )
-  .slice(0, 5);
+    .filter(
+      (asset) =>
+        isMeaningfulMover(asset) &&
+        asset.percentChange24h > 0
+    )
+    .sort(
+      (a, b) =>
+        b.percentChange24h - a.percentChange24h
+    )
+    .slice(0, 5);
 
-const topLosers = [...rankedAssets]
-  .filter(
-    (asset) =>
-      isMeaningfulMover(asset) &&
-      asset.percentChange24h < 0
-  )
-  .sort(
-    (a, b) =>
-      a.percentChange24h - b.percentChange24h
-  )
-  .slice(0, 5);
-  
+  const topLosers = [...rankedAssets]
+    .filter(
+      (asset) =>
+        isMeaningfulMover(asset) &&
+        asset.percentChange24h < 0
+    )
+    .sort(
+      (a, b) =>
+        a.percentChange24h - b.percentChange24h
+    )
+    .slice(0, 5);
+
   const volumeLeaders = [...rankedAssets]
-  .sort(
-    (a, b) =>
-      b.volumeChange24h - a.volumeChange24h
-  )
-  .slice(0, 5);
+    .sort(
+      (a, b) =>
+        b.volumeChange24h - a.volumeChange24h
+    )
+    .slice(0, 5);
 
   const signals: MarketSignal[] = [];
 
   for (const asset of rankedAssets) {
     const momentum = calculateMomentum(asset);
+    const priceChange = asset.percentChange24h;
+    const volumeChange = asset.volumeChange24h;
+
+    if (
+      Math.abs(priceChange) >= 3 &&
+      volumeChange >= 30
+    ) {
+      signals.push({
+        type: "confirmation",
+        score: Math.round(
+          clamp(
+            Math.abs(priceChange) * 4 + volumeChange * 0.5,
+            0,
+            100
+          )
+        ),
+        title: `${asset.name} has price-volume confirmation`,
+        description:
+          `${asset.symbol} moved ${priceChange >= 0 ? "up" : "down"} ${Math.abs(
+            priceChange
+          ).toFixed(2)}% over 24h while trading volume increased ${volumeChange.toFixed(
+            2
+          )}%. The volume change is confirming the observed price move.`,
+        asset,
+      });
+    }
+
+    if (
+      Math.abs(priceChange) >= 3 &&
+      volumeChange <= -30
+    ) {
+      signals.push({
+        type: "divergence",
+        score: Math.round(
+          clamp(
+            Math.abs(priceChange) * 4 + Math.abs(volumeChange) * 0.5,
+            0,
+            100
+          )
+        ),
+        title: `${asset.name} shows price-volume divergence`,
+        description:
+          `${asset.symbol} moved ${priceChange >= 0 ? "up" : "down"} ${Math.abs(
+            priceChange
+          ).toFixed(2)}% over 24h while trading volume decreased ${Math.abs(
+            volumeChange
+          ).toFixed(2)}%. The current move is not confirmed by rising volume.`,
+        asset,
+      });
+    }
 
     if (momentum >= 40) {
       signals.push({
