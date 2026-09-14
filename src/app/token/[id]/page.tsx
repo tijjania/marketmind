@@ -186,7 +186,7 @@ export default function TokenPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-[#05070b] px-6 py-12 text-white">
+      <main className="min-h-screen bg-[#05070b] px-4 py-8 text-white sm:px-6 sm:py-12">
         <div className="mx-auto max-w-6xl">
           <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-10 text-center">
             <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-zinc-700 border-t-white" />
@@ -202,7 +202,7 @@ export default function TokenPage() {
 
   if (error || !token) {
     return (
-      <main className="min-h-screen bg-[#05070b] px-6 py-12 text-white">
+      <main className="min-h-screen bg-[#05070b] px-4 py-8 text-white sm:px-6 sm:py-12">
         <div className="mx-auto max-w-6xl">
           <Link
             href="/"
@@ -211,7 +211,7 @@ export default function TokenPage() {
             ← Back to MarketMind
           </Link>
 
-          <div className="mt-8 rounded-3xl border border-red-500/20 bg-red-500/5 p-8">
+          <div className="mt-8 rounded-3xl border border-red-500/20 bg-red-500/5 p-6 sm:p-8">
             <h1 className="text-lg font-semibold text-red-400">
               Token unavailable
             </h1>
@@ -237,34 +237,34 @@ export default function TokenPage() {
 
   return (
     <main className="min-h-screen bg-[#05070b] text-white">
-      <div className="mx-auto max-w-6xl px-6 py-8 lg:px-8">
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         {/* Header */}
-        <header className="mb-8 flex items-center justify-between">
+        <header className="mb-8 flex flex-wrap items-center justify-between gap-3">
           <a
             href="#ask"
-            className="rounded-xl bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-zinc-200"
+            className="rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-black transition hover:bg-zinc-200 sm:px-5 sm:py-3"
           >
             Ask MarketMind
           </a>
 
-          <span className="flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/5 px-4 py-2 text-xs text-emerald-400">
+          <span className="flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/5 px-3 py-2 text-[11px] text-emerald-400 sm:px-4 sm:text-xs">
             <span className="h-2 w-2 rounded-full bg-emerald-400" />
             LIVE DATA
           </span>
         </header>
 
         {/* Token Overview */}
-        <section className="mb-6 rounded-3xl border border-white/10 bg-white/[0.03] p-7">
+        <section className="mb-6 rounded-3xl border border-white/10 bg-white/[0.03] p-5 sm:p-7">
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div>
-              <div className="flex items-center gap-3">
+              <div className="flex min-w-0 items-center gap-3">
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white font-bold text-black">
                   {asset.symbol.slice(0, 1)}
                 </div>
 
                 <div>
-                  <div className="flex items-center gap-3">
-                    <h1 className="text-3xl font-semibold">
+                  <div className="flex min-w-0 flex-wrap items-center gap-3">
+                    <h1 className="text-2xl font-semibold sm:text-3xl">
                       {asset.name}
                     </h1>
 
@@ -279,13 +279,13 @@ export default function TokenPage() {
                 </div>
               </div>
 
-              <div className="mt-7">
+              <div className="mt-6 sm:mt-7">
                 <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
                   Current Price
                 </p>
 
-                <div className="mt-2 flex items-end gap-4">
-                  <span className="text-4xl font-semibold">
+                <div className="mt-2 flex flex-wrap items-end gap-3 sm:gap-4">
+                  <span className="text-3xl font-semibold sm:text-4xl">
                     {formatPrice(asset.price)}
                   </span>
 
@@ -296,7 +296,7 @@ export default function TokenPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-3">
               <Metric
                 label="Market Cap"
                 value={`$${formatCompact(asset.marketCap)}`}
@@ -394,7 +394,7 @@ export default function TokenPage() {
         {/* AI Analyst */}
         <section
           id="ask"
-          className="mb-6 rounded-3xl border border-white/10 bg-white/[0.03] p-6"
+          className="mb-6 rounded-3xl border border-white/10 bg-white/[0.03] p-5 sm:p-6"
         >
           <div className="mb-6">
             <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
@@ -473,7 +473,7 @@ export default function TokenPage() {
 
           {answer && !askLoading && (
             <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-black/20">
-              <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-4 sm:px-5">
                 <div className="flex items-center gap-3">
                   <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white text-xs font-black text-black">
                     M
@@ -495,7 +495,7 @@ export default function TokenPage() {
                 </span>
               </div>
 
-              <div className="px-5 py-5">
+              <div className="px-4 py-5 sm:px-5">
                 <div className="whitespace-pre-wrap text-sm leading-7 text-zinc-300">
                   {answer}
                 </div>
@@ -505,7 +505,7 @@ export default function TokenPage() {
         </section>
 
         {/* Signals */}
-        <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+        <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
           <div className="mb-6">
             <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
               Token Intelligence
@@ -610,7 +610,7 @@ function IntelligenceCard({
   accent?: string;
 }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+    <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
       <p className="text-xs uppercase tracking-[0.15em] text-zinc-500">
         {label}
       </p>
