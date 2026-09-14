@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import MarketChart from "@/components/MarketChart";
 
@@ -368,9 +369,14 @@ export default function Home() {
         <header className="mb-8 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white font-black text-black">
-                M
-              </div>
+              <Image
+                src="/marketmind-icon.png"
+                alt="MarketMind"
+                width={40}
+                height={40}
+                className="h-10 w-10 rounded-xl object-cover"
+                priority
+              />
 
               <h1 className="text-2xl font-bold tracking-tight">
                 MarketMind
@@ -607,9 +613,13 @@ export default function Home() {
                 <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-black/20">
                   <div className="flex flex-col gap-3 border-b border-white/10 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white text-xs font-black text-black">
-                        M
-                      </div>
+                      <Image
+                        src="/marketmind-icon.png"
+                        alt="MarketMind"
+                        width={28}
+                        height={28}
+                        className="h-7 w-7 rounded-lg object-cover"
+                      />
 
                       <div>
                         <p className="text-xs font-semibold text-white">
