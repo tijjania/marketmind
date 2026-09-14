@@ -171,7 +171,7 @@ function DashboardSkeleton() {
         <div className="h-[330px] animate-pulse rounded-3xl border border-white/10 bg-white/[0.03]" />
       </section>
 
-      <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+      <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
         <div className="h-5 w-28 animate-pulse rounded bg-white/10" />
 
         <div className="mt-4 h-8 w-48 animate-pulse rounded bg-white/10" />
@@ -363,9 +363,9 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-[#05070b] text-white">
-      <div className="mx-auto max-w-7xl px-6 py-8 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         {/* Header */}
-        <header className="mb-10 flex items-center justify-between">
+        <header className="mb-8 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white font-black text-black">
@@ -391,7 +391,7 @@ export default function Home() {
         {loading && <DashboardSkeleton />}
 
         {!loading && error && (
-          <section className="rounded-3xl border border-red-500/20 bg-red-500/5 p-8">
+          <section className="rounded-3xl border border-red-500/20 bg-red-500/5 p-5 sm:p-8">
             <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-xs font-medium uppercase tracking-[0.18em] text-red-400">
@@ -429,7 +429,7 @@ export default function Home() {
           <>
             {/* Hero + Market Score */}
             <section className="mb-6 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-              <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.07] to-white/[0.02] p-8">
+              <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.07] to-white/[0.02] p-6 sm:p-8">
                 <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-purple-500/10 blur-3xl" />
 
                 <div className="relative">
@@ -437,7 +437,7 @@ export default function Home() {
                     AI-Powered Crypto Intelligence
                   </p>
 
-                  <h2 className="mt-4 max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl">
+                  <h2 className="mt-4 max-w-2xl text-3xl font-semibold tracking-tight sm:text-5xl">
                     Don&apos;t just see what moved.
                     <br />
                     <span className="text-zinc-500">
@@ -467,13 +467,13 @@ export default function Home() {
               </div>
 
               {/* Market Score */}
-              <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-7">
+              <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-5 sm:p-7">
                 <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
                   Market Score
                 </p>
 
-                <div className="mt-6 flex items-end gap-3">
-                  <span className="text-6xl font-semibold tracking-tight">
+                <div className="mt-5 flex items-end gap-2 sm:mt-6 sm:gap-3">
+                  <span className="text-5xl font-semibold tracking-tight sm:text-6xl">
                     {market.analysis.marketScore}
                   </span>
 
@@ -497,7 +497,7 @@ export default function Home() {
                   />
                 </div>
 
-                <div className="mt-5 flex items-center justify-between">
+                <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <span className="text-sm text-zinc-500">
                       Current bias
@@ -522,7 +522,7 @@ export default function Home() {
             {/* Ask MarketMind */}
             <section
               id="ask"
-              className="mb-6 rounded-3xl border border-white/10 bg-white/[0.03] p-6"
+              className="mb-6 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6"
             >
               <div className="mb-6">
                 <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
@@ -605,7 +605,7 @@ export default function Home() {
 
               {answer && !askLoading && (
                 <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-black/20">
-                  <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+                  <div className="flex flex-col gap-3 border-b border-white/10 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
                     <div className="flex items-center gap-3">
                       <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white text-xs font-black text-black">
                         M
@@ -627,7 +627,7 @@ export default function Home() {
                     </span>
                   </div>
 
-                  <div className="px-5 py-5">
+                  <div className="px-4 py-5 sm:px-5">
                     <div className="whitespace-pre-wrap text-sm leading-7 text-zinc-300">
                       {answer}
                     </div>
@@ -638,7 +638,7 @@ export default function Home() {
 
             {/* Stats */}
             <section className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5">
                 <p className="text-xs text-zinc-500">BTC Price</p>
 
                 <p className="mt-2 text-xl font-semibold">
@@ -652,7 +652,7 @@ export default function Home() {
                 )}
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5">
                 <p className="text-xs text-zinc-500">
                   BTC Dominance
                 </p>
@@ -664,7 +664,7 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5">
                 <p className="text-xs text-zinc-500">
                   24h Volume
                 </p>
@@ -674,7 +674,7 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5">
                 <p className="text-xs text-zinc-500">
                   Market Breadth
                 </p>
@@ -698,8 +698,8 @@ export default function Home() {
             </section>
 
             {/* Signals */}
-            <section className="mb-6 rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-              <div className="mb-6 flex items-center justify-between">
+            <section className="mb-6 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+              <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
                     Intelligence Feed
@@ -716,7 +716,7 @@ export default function Home() {
               </div>
 
               {market.analysis.signals.length === 0 ? (
-                <div className="rounded-2xl border border-white/10 bg-black/20 p-6">
+                <div className="rounded-2xl border border-white/10 bg-black/20 p-5 sm:p-6">
                   <p className="text-sm font-medium text-zinc-400">
                     No significant market signals detected
                   </p>
@@ -789,7 +789,7 @@ export default function Home() {
 
             {/* Movers */}
             <section className="grid gap-6 lg:grid-cols-2">
-              <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+              <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
                 <div className="mb-5">
                   <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
                     Market Movers
@@ -845,7 +845,7 @@ export default function Home() {
                 )}
               </div>
 
-              <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+              <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
                 <div className="mb-5">
                   <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
                     Volume Intelligence
