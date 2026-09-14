@@ -39,9 +39,13 @@ const STABLECOIN_SYMBOLS = new Set([
   "USDP",
 ]);
 
+function isIntelligenceAsset(asset: MarketAsset) {
+  return !STABLECOIN_SYMBOLS.has(asset.symbol);
+}
+
 function isMeaningfulMover(asset: MarketAsset) {
   return (
-    !STABLECOIN_SYMBOLS.has(asset.symbol) &&
+    isIntelligenceAsset(asset) &&
     Math.abs(asset.percentChange24h) >= 0.5
   );
 }
@@ -64,10 +68,9 @@ function calculateMomentum(asset: MarketAsset) {
 }
 
 function calculateMarketScore(assets: MarketAsset[]) {
-  if (!assets.length) return 50;
-
   const validAssets = assets.filter(
     (asset) =>
+      isIntelligenceAsset(asset) &&
       asset.percentChange24h !== null &&
       asset.marketCap !== null &&
       asset.marketCap > 0
@@ -81,18 +84,21 @@ function calculateMarketScore(assets: MarketAsset[]) {
 
   const breadth = positive / validAssets.length;
 
+  const totalWeight = validAssets.reduce(
+    (total, asset) => total + Math.sqrt(asset.marketCap ?? 0),
+    0
+  );
+
   const weightedChange =
-    validAssets.reduce((total, asset) => {
-      const weight = Math.sqrt(asset.marketCap ?? 0);
-      return total + asset.percentChange24h * weight;
-    }, 0) /
-    validAssets.reduce(
-      (total, asset) => total + Math.sqrt(asset.marketCap ?? 0),
-      0
-    );
+    totalWeight > 0
+      ? validAssets.reduce((total, asset) => {
+          const weight = Math.sqrt(asset.marketCap ?? 0);
+          return total + asset.percentChange24h * weight;
+        }, 0) / totalWeight
+      : 0;
 
   return Math.round(
-    clamp(50 + breadth * 30 + weightedChange * 2, 0, 100)
+    clamp(20 + breadth * 60 + weightedChange * 2, 0, 100)
   );
 }
 
@@ -102,11 +108,34 @@ function getMarketBias(score: number): MarketAnalysis["marketBias"] {
   return "mixed";
 }
 
+function prioritizeSignals(signals: MarketSignal[]) {
+  const sorted = [...signals].sort((a, b) => b.score - a.score);
+  const assetSignalCounts = new Map<number, number>();
+  const selected: MarketSignal[] = [];
+
+  for (const signal of sorted) {
+    const count = assetSignalCounts.get(signal.asset.id) ?? 0;
+
+    if (count >= 2) continue;
+
+    selected.push(signal);
+    assetSignalCounts.set(signal.asset.id, count + 1);
+
+    if (selected.length >= 15) break;
+  }
+
+  return selected;
+}
+
 export function analyzeMarket(
   assets: MarketAsset[]
 ): MarketAnalysis {
   const rankedAssets = [...assets]
-    .filter((asset) => asset.rank !== null)
+    .filter(
+      (asset) =>
+        asset.rank !== null &&
+        isIntelligenceAsset(asset)
+    )
     .sort((a, b) => (a.rank ?? 9999) - (b.rank ?? 9999));
 
   const topGainers = [...rankedAssets]
@@ -134,6 +163,7 @@ export function analyzeMarket(
     .slice(0, 5);
 
   const volumeLeaders = [...rankedAssets]
+    .filter((asset) => asset.volumeChange24h >= 0)
     .sort(
       (a, b) =>
         b.volumeChange24h - a.volumeChange24h
@@ -194,6 +224,7 @@ export function analyzeMarket(
         asset,
       });
     }
+
     if (
       Math.abs(priceChange) <= 2 &&
       volumeChange >= 50
@@ -218,6 +249,7 @@ export function analyzeMarket(
         asset,
       });
     }
+
     if (momentum >= 40) {
       signals.push({
         type: "momentum",
@@ -293,14 +325,12 @@ export function analyzeMarket(
     }
   }
 
-  signals.sort((a, b) => b.score - a.score);
-
   const marketScore = calculateMarketScore(rankedAssets);
 
   return {
     marketBias: getMarketBias(marketScore),
     marketScore,
-    signals: signals.slice(0, 15),
+    signals: prioritizeSignals(signals),
     topGainers,
     topLosers,
     volumeLeaders,
